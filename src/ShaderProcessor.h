@@ -44,6 +44,8 @@ public:
         result.begin();
             ofClear(0,0);
         result.end();
+
+		setupShaderFromSource(GL_)
         
         setupShaderFromSource(GL_FRAGMENT_SHADER, shader);
         linkProgram();

@@ -8,7 +8,7 @@
 class LCLayer: public ofFbo {
 public:
     LCLayer(int numsamples = 1) {
-        allocate(ofGetScreenWidth(), ofGetScreenHeight(), GL_RGBA);
+        allocate(ofGetScreenWidth(), ofGetScreenHeight(), GL_RGBA, 0);
         this->width = ofGetScreenWidth();
         this->height = ofGetScreenHeight();
         
@@ -18,7 +18,7 @@ public:
     }
     
     LCLayer(int width, int height) {
-        allocate(width, height, GL_RGBA);
+        allocate(width, height, GL_RGBA, 0);
         this->width = width;
         this->height = height;
         
@@ -45,7 +45,7 @@ public:
     void initShader() {
         
         
-        blurAndMask.setupFromString(ofGetScreenWidth(), ofGetScreenHeight(),                    GLSL120(
+        blurAndMask.setupFromString(width, height,  GLSL120(
                                                                                                         
                     uniform sampler2DRect tex1;
                     uniform sampler2DRect maskedImage;
@@ -103,15 +103,25 @@ public:
                             gl_FragColor = colorTex2;
                         }
 
-                        if (maskSource == -1) { // no mask
+                        if ((maskSource == -1) && (blurRadius != 0)) { // no mask and no blur
                             gl_FragColor = blur(tex1, st, blurRadius) * 0.5 + blur(tex1, st, blurRadius * 1.5) * 0.5; // * 0.5 + colorTex1 * 0.5;//colorTex1;
-                        }
+							gl_FragColor = vec4(1., 0., 0., 1.);
+						}
+
+						if ((maskSource == -1) && (blurRadius == 0)) {
+							gl_FragColor = colorTex1;
+							gl_FragColor.r = tex1Resolution.x;
+							gl_FragColor.g = st.y * tex1Resolution.y;
+							gl_FragColor.b = 0.;
+							//gl_FragColor = vec4(0., 0., 1., 1.);
+						}
                         
-                        if (maskSource == 3) { // alpha
+                        if (maskSource == 3) { // alpha mask + blur
                             vec4 result = blur(tex1, st, blurRadius) * 0.5 + blur(tex1, st, blurRadius * 1.5) * 0.5;
                             result.rgb = colorTex2.rgb;
                             gl_FragColor = result;
-                        }
+							gl_FragColor = vec4(0., 1., 0., 1.);
+						}
                     }
                      
 
@@ -129,6 +139,7 @@ public:
     }
     
     void update() {
+
         blurAndMask["blurRadius"] = blurRadius / 100.;
         blurAndMask["maskSource"] = maskSource;
         blurAndMask.update();

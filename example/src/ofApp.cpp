@@ -5,10 +5,10 @@ void ofApp::setup(){
     
 //    ofToggleFullscreen();
     
-    layerComposer.addLayer(layer2 = new LCLayer(ofGetWidth(), ofGetHeight()));
-    layerComposer.addLayer(layer3 = new LCLayer(ofGetWidth(), ofGetHeight()));
-    layerComposer.addLayer(layer1 = new LCLayer(ofGetWidth(), ofGetHeight()));
-    layerComposer.addLayer(layer4 = new LCLayer(ofGetWidth(), ofGetHeight()));
+    layerComposer.addLayer(layer2 = new LCLayer(ofGetWidth(), ofGetHeight(), 8));
+    layerComposer.addLayer(layer3 = new LCLayer(ofGetWidth(), ofGetHeight(), 8));
+    layerComposer.addLayer(layer1 = new LCLayer(ofGetWidth(), ofGetHeight(), 8));
+    layerComposer.addLayer(layer4 = new LCLayer(ofGetWidth(), ofGetHeight(), 8));
     
     masked1.load("waterfall_1.jpg");
     masked2.load("waterfall_2.jpg");
@@ -21,9 +21,9 @@ void ofApp::setup(){
     layer4->visible = true;
     
     layer1->addMaskedImage(&masked1.getTexture());
-//    layer2->addMaskedImage(&masked2.getTexture());
-//    layer3->addMaskedImage(&masked3.getTexture());
-//    layer4->addMaskedImage(&masked4.getTexture());
+    layer2->addMaskedImage(&masked2.getTexture());
+    layer3->addMaskedImage(&masked3.getTexture());
+    layer4->addMaskedImage(&masked4.getTexture());
     
     fbo.allocate(ofGetScreenWidth(), ofGetScreenHeight());
     fbo.begin();
@@ -48,17 +48,17 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-    float time = ofGetElapsedTimef();
+    float time = ofGetElapsedTimef() / 4;
     
     layer1->blurRadius = 1.5;
     layer1->begin();
         ofClear(0);
         ofSetColor(255);
-        for (int j = 0; j < 25; j++) {
-            for (int i = 0; i < 25; i++) {
-                ofSetColor(255 * sin(i / 20 + time), 0, 0, 150 + 100 * sin(ofGetElapsedTimef() * 2 + i + j * 2));
-                ofDrawCircle(ofNoise(i + time) *  ofGetWidth(),
-                             ofNoise(i + time * 2) *  ofGetHeight(), ofNoise(i + time / 2) * 190);
+        for (int j = 0; j < 50; j++) {
+            for (int i = 0; i < 50; i++) {
+                ofSetColor(255 * sin(i / 20 + time * 1.2), 0, 0, 150 + 100 * sin(ofGetElapsedTimef() * 2 + i + j * 2));
+                ofDrawCircle(ofNoise(i + time * 1.2) *  ofGetWidth(),
+                             ofNoise(i + time * 2.4) *  ofGetHeight(), ofNoise(i + time / 2.5) * 190);
                 
             }
         }

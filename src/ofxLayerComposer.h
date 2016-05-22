@@ -7,8 +7,9 @@
 
 class LCLayer: public ofFbo {
 public:
-    LCLayer(int numsamples = 1) {
-        allocate(ofGetScreenWidth(), ofGetScreenHeight(), GL_RGBA, 0);
+    LCLayer(int numsamples = 0) {
+        ofDisableArbTex();
+        allocate(ofGetScreenWidth(), ofGetScreenHeight(), GL_RGBA, numsamples);
         this->width = ofGetScreenWidth();
         this->height = ofGetScreenHeight();
         
@@ -17,8 +18,8 @@ public:
         clear();
     }
     
-    LCLayer(int width, int height) {
-        allocate(width, height, GL_RGBA, 0);
+    LCLayer(int width, int height, int numsamples = 0) {
+        allocate(width, height, GL_RGBA, numsamples);
         this->width = width;
         this->height = height;
         
@@ -58,7 +59,7 @@ public:
                     uniform float maskSource; // -1 = no mask 0 = r, 1 = g, 2 = b, 3 = a, 4 = V
                                                                                                         
                     uniform float blurRadius;
-                                                                                                        
+                                                            
                     vec4 blur(sampler2DRect texture, vec2 st, float offset)
                     {
                         float texOffset = offset;
@@ -91,10 +92,12 @@ public:
                         vec4 result = vec4(sum.rgb, sum.a);
                         return result;
                     }
+                                                             
                     
                     void main( void )
                     {
                         vec2 st = gl_TexCoord[0].st;
+                        
                         
                         vec4 colorTex1 = texture2DRect(tex1, st * tex1Resolution);
                         vec4 colorTex2 = texture2DRect(maskedImage, st * maskedImageResolution);
@@ -103,29 +106,21 @@ public:
                             gl_FragColor = colorTex2;
                         }
 
-                        if ((maskSource == -1) && (blurRadius != 0)) { // no mask and no blur
+                        if ((maskSource == -1) && (blurRadius != 0)) { // no mask and blur
                             gl_FragColor = blur(tex1, st, blurRadius) * 0.5 + blur(tex1, st, blurRadius * 1.5) * 0.5; // * 0.5 + colorTex1 * 0.5;//colorTex1;
-							gl_FragColor = vec4(1., 0., 0., 1.);
 						}
 
 						if ((maskSource == -1) && (blurRadius == 0)) {
 							gl_FragColor = colorTex1;
-							gl_FragColor.r = tex1Resolution.x;
-							gl_FragColor.g = st.y * tex1Resolution.y;
-							gl_FragColor.b = 0.;
-							//gl_FragColor = vec4(0., 0., 1., 1.);
 						}
                         
                         if (maskSource == 3) { // alpha mask + blur
                             vec4 result = blur(tex1, st, blurRadius) * 0.5 + blur(tex1, st, blurRadius * 1.5) * 0.5;
                             result.rgb = colorTex2.rgb;
                             gl_FragColor = result;
-							gl_FragColor = vec4(0., 1., 0., 1.);
+                            
 						}
                     }
-                     
-
-                     
         ));
         blurAndMask.addInputTexture(&getTexture(), "tex1");
         blurAndMask.addFloatParameter("blurRadius");
@@ -139,7 +134,7 @@ public:
     }
     
     void update() {
-
+        updateTexture(0);
         blurAndMask["blurRadius"] = blurRadius / 100.;
         blurAndMask["maskSource"] = maskSource;
         blurAndMask.update();
@@ -147,10 +142,14 @@ public:
     
     void draw() {
         blurAndMask.getTexture().draw(0, 0, width, height);
+        
     }
     
     void draw(int x, int y, int w, int h) {
         blurAndMask.getTexture().draw(x, y, w, h);
+
+//        getTexture().draw(0, 0);
+//        getTexture().draw(0, 0);
     }
 
     

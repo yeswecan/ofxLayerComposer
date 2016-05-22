@@ -45,7 +45,24 @@ public:
             ofClear(0,0);
         result.end();
 
-		setupShaderFromSource(GL_)
+        setupShaderFromSource(GL_VERTEX_SHADER, GLSL120(
+            varying vec2 texCoordVarying;
+            attribute vec2 texcoord;
+
+            void main() {
+            
+                gl_TexCoord[0] = gl_MultiTexCoord0; \n
+                gl_TexCoord[1] = gl_MultiTexCoord1; \n
+                gl_TexCoord[2] = gl_MultiTexCoord2; \n
+                texCoordVarying = texcoord;
+                vec4 eyeCoord  = gl_ModelViewMatrix * gl_Vertex; \n
+                gl_Position    = gl_ProjectionMatrix * eyeCoord; \n
+                gl_FrontColor  = gl_Color;
+                
+            
+            }
+                                                       
+                                                       ));
         
         setupShaderFromSource(GL_FRAGMENT_SHADER, shader);
         linkProgram();
@@ -95,7 +112,8 @@ public:
                         }
                     }
                 }
-        
+                //printActiveUniforms();
+                //printActiveAttributes();
                 singular.draw(0, 0, result.getWidth(), result.getHeight());
             end();
         result.end();

@@ -5,7 +5,7 @@
 #include "ofMain.h"
 #include "ShaderProcessor.h"
 
-class LCLayer: public ofFbo {
+class LCLayer: private ofFbo {
 public:
     LCLayer(int numsamples = 0) {
         ofDisableArbTex();
@@ -30,13 +30,16 @@ public:
     
     void clear() {
         begin();
-            ofClear(255);
+            ofClear(0, 0);
         end();
     }
     
     void begin() {
         ((ofFbo*)this)->begin();
-        ofClear(255); // 
+        ofClear(0, 0); //
+        glEnable(GL_BLEND);
+        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendEquation(GL_FUNC_ADD);
     }
     
     void end() {
@@ -141,15 +144,23 @@ public:
     }
     
     void draw() {
+        ofSetColor(255);
+        ofEnableAlphaBlending();
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
         blurAndMask.getTexture().draw(0, 0, width, height);
-        
+        ofEnableAlphaBlending();
     }
     
     void draw(int x, int y, int w, int h) {
+        ofSetColor(255);
+        ofEnableAlphaBlending();
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
         blurAndMask.getTexture().draw(x, y, w, h);
-
-//        getTexture().draw(0, 0);
-//        getTexture().draw(0, 0);
+        ofEnableAlphaBlending();
+    }
+    
+    ofTexture* getSourceTexture() {
+        return &getTexture();
     }
 
     

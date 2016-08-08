@@ -5,10 +5,10 @@ void ofApp::setup(){
     
 //    ofToggleFullscreen();
     
-    layerComposer.addLayer(layer2 = new LCLayer(ofGetWidth(), ofGetHeight(), 8));
-    layerComposer.addLayer(layer3 = new LCLayer(ofGetWidth(), ofGetHeight(), 8));
-    layerComposer.addLayer(layer1 = new LCLayer(ofGetWidth(), ofGetHeight(), 8));
-    layerComposer.addLayer(layer4 = new LCLayer(ofGetWidth(), ofGetHeight(), 8));
+    layerComposer.addLayer(layer2 = new LCLayer(ofGetWidth(), ofGetHeight(), 0));
+    layerComposer.addLayer(layer3 = new LCLayer(ofGetWidth(), ofGetHeight(), 0));
+    layerComposer.addLayer(layer1 = new LCLayer(ofGetWidth(), ofGetHeight(), 0));
+    layerComposer.addLayer(layer4 = new LCLayer(ofGetWidth(), ofGetHeight(), 0));
     
     masked1.load("waterfall_1.jpg");
     masked2.load("waterfall_2.jpg");
@@ -48,90 +48,58 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-    float time = ofGetElapsedTimef() / 4;
-    
-    layer1->blurRadius = 1.5;
-    layer1->begin();
-        ofClear(0);
-        ofSetColor(255);
-        for (int j = 0; j < 50; j++) {
-            for (int i = 0; i < 50; i++) {
-                ofSetColor(255 * sin(i / 20 + time * 1.2), 0, 0, 150 + 100 * sin(ofGetElapsedTimef() * 2 + i + j * 2));
-                ofDrawCircle(ofNoise(i + time * 1.2) *  ofGetWidth(),
-                             ofNoise(i + time * 2.4) *  ofGetHeight(), ofNoise(i + time / 2.5) * 190);
-                
-            }
-        }
-    layer1->end();
 
-
-    layer2->begin();
-        ofClear(0);
-        ofSetColor(255);
-        int freq = 15;
-        for (int j = 0; j < freq; j++) {
-            for (int i = 0; i < freq; i++) {
-                ofSetColor(255 * sin((float)i / 20 + time),
-                           255 * cos((float)i / 5 + time * 2),
-                           255 * sin((float)i / 2 + time), 255 * ofNoise(i, j, time * 2));
-                float xsize = (float)ofGetWidth() / freq;
-                float ysize = (float)ofGetHeight() / freq;
-                float x = xsize * j;
-                float y = ysize * i;
-                ofDrawRectangle(x, y, xsize, ysize);
-            }
-        }
-    layer2->end();
-    
-    
-    layer3->begin();
-        ofSetColor(255);
-            ofPushMatrix();
-                ofTranslate(300, 50);
-                ofBeginShape();
-                    ofVertex(200, 200);
-                    ofVertex(270, 210);
-                    ofVertex(300, 320);
-                    ofVertex(200, 280);
-                ofEndShape();
-            ofPopMatrix();
-            ofPushMatrix();
-                ofTranslate(300, 350);
-                ofBeginShape();
-                    ofVertex(200, 200);
-                    ofVertex(270, 210);
-                    ofVertex(300, 320);
-                    ofVertex(200, 280);
-                ofEndShape();
-            ofPopMatrix();
-    
-    layer3->end();
-    
-    layer4->begin();
-        ofSetColor(ofRandom(255));
-        ofDrawRectangle(200, 200, 75 + sin(ofGetElapsedTimef() * 2) * 175,
-                        80 + cos(ofGetElapsedTimef() * 4) * 75);
-        ofDrawRectangle(600, 200, 75 + sin(ofGetElapsedTimef() * 2) * 175,
-                    80 + cos(ofGetElapsedTimef() * 4) * 75);
-        ofDrawRectangle(500, 600, 75 + sin(ofGetElapsedTimef() * 2) * 175,
-                    80 + cos(ofGetElapsedTimef() * 4) * 75);
-    layer4->end();
-
-    
-    layerComposer.update(); // rendering the frames
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    rr = sin(ofGetElapsedTimef() * 3) * 125 + 125;
+    time = ofGetElapsedTimef() / 4;
+    
     ofClear(0);
-    ofSetColor(255);
-//    ofDrawRectangle(0, 0, 320, 240);
+
+    if (!ofGetKeyPressed('z')) {
+        layer1->blurRadius = 0.5;
+        layer1->begin();
+            draw1();
+        layer1->end();
+        
+        
+        layer2->blurRadius = 0.7;
+        layer2->begin();
+            draw2();
+        layer2->end();
+        
+        
+        layer3->blurRadius = 0.9;
+        layer3->begin();
+            draw3();
+        layer3->end();
+        
+        layer4->blurRadius = 2.5;
+        layer4->begin();
+            draw4();
+        layer4->end();
+        
+        
+        layerComposer.update(); // rendering the frames
+        
+        ////////////////////////////////////////////////////////
+        
+        rr = sin(ofGetElapsedTimef() * 3) * 125 + 125;
+        ofSetColor(255);
+        
+//        layer4->draw();
+//        layer4->getSourceTexture()->draw(0, 0);
+        layerComposer.draw(0, 0, ofGetWidth(), ofGetHeight());
+    } else {
+        ofEnableAlphaBlending();
+        draw2();
+        draw3();
+        draw1();
+        draw4();
+    }
     
-//    shader.update();
-//    shader.getTexture().draw(0, 0, 400, 350);
     
-    layerComposer.draw(0, 0, ofGetWidth(), ofGetHeight());
     ofDrawBitmapString(ofToString(ofGetFrameRate()), 10, 10);
 }
 

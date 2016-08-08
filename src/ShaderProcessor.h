@@ -87,7 +87,7 @@ public:
     void update() {
         result.begin();
 //            if (clearEveryFrame)
-                ofClear(255, 0);
+                ofClear(0, 0);
         
             ofSetColor(255);
             begin();

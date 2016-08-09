@@ -163,7 +163,18 @@ public:
         return &getTexture();
     }
 
-    
+	ofTexture & getOutputTexture() {
+		return blurAndMask.getTexture();
+	}
+	/*
+	ofTexture & getTexture() {
+		return blurAndMask.getTexture();
+	}
+
+	ofTexture & getTextureReference() {
+		return blurAndMask.getTexture();
+	}*/
+
     ofTexture *maskedImage = nullptr;
     int maskSource = -1; // -1 = no mask 0 = r, 1 = g, 2 = b, 3 = a, 4 = V
     bool visible = true;
